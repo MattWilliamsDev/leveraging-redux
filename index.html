@@ -1,0 +1,402 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>reveal.js</title>
+
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/sky.css" id="theme">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/monokai.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+
+		<section class="reveal">
+			<section class="slides">
+				<section name="title" data-markdown="md/title.md"></section>
+
+				<section name="intro">
+					<section data-markdown="md/intro.md"></section>
+					<section data-markdown="md/experience.md"></section>
+				</section>
+
+				<!-- <section data-markdown="md/why-react.md"></section> -->
+
+				<section name="what-is-redux-section"> <!-- III. What is Redux?-->
+					<section name="what-is-redux">
+						<h3>What is Redux?</h3>
+						<p>
+							Redux is a state machine with some extra tools to make using it a breeze.
+						</p>
+						
+						<p>
+							Redux is made up of:
+							<ul>
+								<li class="fragment">A "store" where the app state data is stored.</li>
+								<li class="fragment">"Actions" that describe the state mutation that will take place</li>
+								<li class="fragment">A "Reducer" that defines how the state is mutated when a given action is run</li>
+								<li class="fragment">A "Dispatch" method that triggers/dispatches actions to the store to perform a given mutation</li>
+							</ul>
+						</p>
+					</section>
+
+					<section name="action-creators">
+						<h3>Action Creators</h3>
+						<p>
+							Action creators are functions that return an action object.
+						</p>
+
+						<!-- Action creator code -->
+						<pre>
+							<code class="js" data-trim data-line-numbers>
+// store/Banner/actions.js
+import { createAction } from "redux-starter-kit";
+import { showBanner } from "store/Banner/actions";
+
+const NAMESPACE = "BANNER";
+
+function actionCreator(name, ns) {
+	const actionName = !!ns ? `${ns}/${name}` : name;
+	return createAction(actionName);
+}
+
+function createAsyncActions(type) {
+	return {
+		done: createAction(`${type}_DONE`),
+		fail: createAction(`${type}_FAIL`),
+		start: createAction(`${type}_START`)
+	};
+}
+
+// SYNC
+export const setIsVisible = actionCreator("SET_IS_VISIBLE", NAMESPACE); // dispatch(setIsVisible(true)) => { type: "BANNER/SET_IS_VISIBLE" payload: true }
+export const setMessage = actionCreator("SET_MESSAGE", NAMESPACE); // dispatch(setMessage("Some message")) => { type: "BANNER/SET_MESSAGE" payload: "Some message" }
+
+// ASYNC
+export const fetchDataActions = createAsyncActions(`${NAMESPACE}/FETCH_SIGNUP`);
+export const {
+	done: fetchDataDone,
+	fail: fetchDataFail,
+	start: fetchDataStart
+} = fetchDataActions;
+
+// Thunk middleware allows us to return a function from an action call,
+// allowing us to use `dispatch(fetchData())` in our code and have all status actions fire in turn.
+export function fetchData() {
+	const fetchDataRequest = new RequestBuilder()
+		.withAuthorization()
+		.setMethodPost()
+		.setUrl(Endpoints.myEndpoint())
+		.build();
+
+
+	// This thunk function has access to `dispatch` and `getState()`.
+	return (dispatch, getState) => {
+		const apiClient = new ApiClient.Client();
+		dispatch(fetchDataStart()); // Dispatch start action
+
+		return apiClient.call(
+			request,
+			new ApiClient.ResultHandler()
+				.success((data) => {
+					dispatch(fetchDataDone(data));
+				})
+				.responseContainsErrors((errors) => {
+					dispatch(fetchDataFail(errors));
+					dispatch(showBanner(errors));
+				})
+				.default(() => {})
+		);
+	};
+}
+							</code>
+						</pre>
+					</section>
+
+					<section name="reducers">
+						<h3>Reducers</h3>
+						<p>
+							Reducers describe how the state will be mutated when a given action `type` is dispatched.
+						</p>
+
+						<!-- Reducer code -->
+						<pre>
+							<code class="js" data-trim data-line-numbers>
+// store/Banner/reducer.js
+import { setIsVisible, setMessage } from "./actions";
+import { createReducer } from "redux-starter-kit";
+
+const initialState = {
+	isVisible: false,
+	message: "Default banner text"
+};
+
+
+export const BannerReducer = createReducer(
+	initialState,
+	{
+		[ setIsVisible ]: (state, { payload: isVisible }) => ({
+			...state,
+			isVisible
+		}),
+		[ setMessage ]: (state, { payload: message }) => ({
+			...state,
+			message
+		})
+	}
+);
+
+export default BannerReducer;
+							</code>
+						</pre>
+					</section>
+
+					<section name="root-reducer">
+						<h3>Root Reducer</h3>
+						<p>
+							The root reducer allows you to compose smaller reducer "slices" into a single reducer function that encompasses all possible state mutations in the app.
+						</p>
+
+						<pre>
+							<code class="js" data-trim data-line-numbers>
+// store/App/reducer.js
+import { combineReducers } from "redux";
+import { connectRouter } from "connected-react-router";
+
+export const buildRootReducer = (history) => {
+	return combineReducers({
+		banner: BannerReducer,
+		router: connectRouter(history), // Connects the React-Router to the redux store for nav events
+		signup: SignupReducer
+	});
+};
+							</code>
+						</pre>
+					</section>
+				</section>
+
+				<section name="combining-section">
+					<section name="combining-react-redux">
+						<h3>Combining React and Redux</h3>
+						<ul>
+							<li class="fragment">Create/Configure Store &amp; Provide Context</li>
+							<li class="fragment">Build Root Reducer</li>
+							<li class="fragment">Connecting Components</li>
+						</ul>
+					</section>
+
+					<section name="create-config">
+						<h3>Create/Configure Store</h3>
+						
+						<pre><code class="jsx" data-trim data-line-numbers>
+// App.js
+import { createBrowserHistory } from "history";
+import { Provider } from "react-redux";
+import { StoreContext } from "redux-react-hook";
+
+const browserHistory = createBrowserHistory();
+const store = configureStore(browserHistory);
+
+export function App() {
+  return (
+    &lt;Provider store={store}&gt;
+      &lt;StoreContext.Provider value={store}&gt;
+        &lt;ApplicationRouter history={browserHistory} /&gt;
+        &lt;Banner /&gt;
+      &lt;/StoreContext.Provider&gt;
+    &lt;/Provider&gt;
+  );
+}
+						</code></pre>
+
+						<pre><code class="js" data-trim data-line-numbers>
+// configureStore.js
+export const configureStore = (history) => {
+  const middlewares = [ loggerMiddleware, thunkMiddleware, routerMiddleware(history) ];
+  const middlewareEnhancer = applyMiddleware( ...middlewares );
+
+  const enhancers = [ middlewareEnhancer ];
+  const composedEnhancers = composeWithDevTools( ...enhancers );
+
+  return createStore( rootReducer, preloadedState, composedEnhancers );
+};
+						</code></pre>
+					</section>
+
+					<section name="build-root-reducer">
+						<h3>Build Root Reducer</h3>
+						<pre><code class="jsx" data-trim data-line-numbers>
+// store/App/reducer.js
+import { combineReducers } from "redux";
+import { connectRouter } from "connected-react-router";
+
+export const buildRootReducer = (history) => {
+  return combineReducers({
+    banner: BannerReducer,
+    router: connectRouter(history), // Connects the React-Router to the redux store for nav events
+    signup: SignupReducer
+  });
+};
+						</code></pre>
+					</section>
+
+					<section name="connecting-components">
+						<h3>Connecting Components</h3>
+						<p>There are 2 ways to connect components and which one is used depends on if you're writing a functional or class-based component</p>
+					</section>
+
+					<section>
+						<h4>Class-based Components</h4>
+						<pre><code class="jsx" data-trim data-line-numbers>
+import { isArrayLike } from "../../utils/isArrayLike";
+import { isObject } from "../../utils/isObject";
+import React from "react";
+import { setIsVisible as setIsVisibleAction } from "../../store/Banner/actions";
+
+export class Banner extends React.Component {
+  renderMessage () {
+    const { message } = this.props;
+    if (typeof message === "string") {
+      return message;
+    }
+    if (isArrayLike(message)) {
+      return message.map((m, index) => (<div key={index}>{`${m.code}: ${m.message}`}</div>));
+    }
+    if (isObject(message)) {
+      return !!message.message ? message.message : JSON.stringify(message);
+    }
+    return message;
+  }
+
+  showBanner () {
+    this.props.setIsVisible( true );
+  }
+
+  hideBanner () {
+    this.props.setIsVisible( false );
+  }
+
+  render () {
+    const { isVisible, message } = this.props;
+    return isVisible && (
+      <div data-id="banner" className="banner banner--error">
+        <div className="banner--row">
+          <i data-id="banner-icon" className="banner--icon dashing-icon dashing-icon--white dashing-icon--alert-filled"></i>
+          <h3 className="banner--title" data-id="banner-message">
+            {renderMessage()}
+          </h3>
+        </div>
+      </div>
+    );
+  }
+}
+
+const mapStateToProps = ( state ) => ({
+  isVisible: state.banner.isVisible,
+  message: state.banner.message
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  setIsVisible: ( visible ) => dispatch( setIsVisibleAction( visible ) ),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Banner);
+						</code></pre>
+					</section>
+
+					<section>
+						<h4>Functional Components</h4>
+						<pre><code class="jsx" data-trim data-line-numbers>
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch, useMappedState } from "redux-react-hook";
+import { isArrayLike } from "../../utils/isArrayLike";
+import { isObject } from "../../utils/isObject";
+import { selectSlice } from "./../../store/selectors";
+import { setIsVisible } from "../../store/Banner/actions";
+import { usePrevious } from "../../hooks/usePrevious";
+
+export function Banner() {
+  // Select our state "slice". In this case, "banner".
+  // This correlates to the entries in `buildRootReducer`
+  const dispatch = useDispatch();
+  const mapState = useCallback((state) => state.banner, []); // This is memoized
+  const { isVisible, message } = useMappedState(mapState); // Get our state variables via this hook
+  
+  function showBanner () {
+    dispatch(setIsVisible(true));
+  }
+
+  function hideBanner () {
+    dispatch(setIsVisible(false));
+  }
+
+  function renderMessage() {
+    if (typeof message === "string") {
+      return message;
+    }
+    if (isArrayLike(message)) {
+      return message.map((m, index) => (<div key={index}>{`${m.code}: ${m.message}`}</div>));
+    }
+    if (isObject(message)) {
+      return !!message.message ? message.message : JSON.stringify(message);
+    }
+    return message;
+  }
+
+  return isVisible && (
+    <div data-id="banner" className="banner banner--error">
+      <div className="banner--row">
+        <i data-id="banner-icon" className="banner--icon dashing-icon dashing-icon--white dashing-icon--alert-filled"></i>
+        <h3 className="banner--title" data-id="banner-message">
+          {renderMessage()}
+        </h3>
+      </div>
+    </div>
+  );
+}
+
+export default Banner;
+						</code></pre>
+					</section>
+				</section>
+
+				<!-- <section data-markdown="md/summary.md"></section>
+				<section data-markdown="md/links.md"></section> -->
+			</div>
+		</div>
+
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true }
+				],
+				hash: true,
+				history: true,
+				fragmentInURL: true,
+				width: 1200,
+				height: 900
+			});
+		</script>
+	</body>
+</html>
