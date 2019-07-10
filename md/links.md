@@ -8,6 +8,7 @@
 - Redux DevTools (Chrome): https://github.com/zalmoxisus/redux-devtools-extension
 https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd
 - Redux React Hooks: https://github.com/facebookincubator/redux-react-hook
+- Writing Redux Tests: https://redux.js.org/recipes/writing-tests
 
 #### React
 - Classnames: https://github.com/JedWatson/classnames
