@@ -16,3 +16,4 @@ https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfk
 
 #### Other
 - TypeScript: https://www.typescriptlang.org/ - The best thing you can do for backend devs (or ANY devs) writing JS
+- My Presentation Outline: https://docs.google.com/document/d/1sTo2ZQE9XpRs_2tyothXcI3StYApr3qj7V1udIeg-1s/edit?usp=sharing
