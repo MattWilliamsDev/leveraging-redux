@@ -38,19 +38,23 @@
 				<section name="what-is-redux-section"> <!-- III. What is Redux?-->
 					<section name="what-is-redux">
 						<h3>What is Redux?</h3>
-						<p>
-							Redux is a state machine with some extra tools to make using it a breeze.
-						</p>
-						
-						<p>
-							Redux is made up of:
-							<ul>
-								<li class="fragment">A "store" where the app state data is stored.</li>
-								<li class="fragment">"Actions" that describe the state mutation that will take place</li>
-								<li class="fragment">A "Reducer" that defines how the state is mutated when a given action is run</li>
-								<li class="fragment">A "Dispatch" method that triggers/dispatches actions to the store to perform a given mutation</li>
-							</ul>
-						</p>
+						<small>"A predictable state container for JavaScript apps."</small>
+
+						<ul>
+							<li class="fragment">Single store for all application state</li>
+							<li class="fragment">Never modify state directly - dispatch actions instead</li>
+							<li class="fragment">"Actions" are dispatched and "reducers" know how state should be changed for each action</li>
+						</ul>
+					</section>
+
+					<section name="redux-contents">
+						<h3>What Makes Up Redux?</h3>
+						<ul>
+							<li class="fragment"><em>Store</em> - where the app state data is stored</li>
+							<li class="fragment"><em>Actions</em> - describes the state update that will take place</li>
+							<li class="fragment"><em>Reducer</em> - describes how the state is updated when a given action is run</li>
+							<li class="fragment"><em>Dispatch</em> - triggers/dispatches actions to the reducer to perform a given update</li>
+						</ul>
 					</section>
 
 					<section name="action-creators">
@@ -69,16 +73,16 @@ import { showBanner } from "store/Banner/actions";
 const NAMESPACE = "BANNER";
 
 function actionCreator(name, ns) {
-	const actionName = !!ns ? `${ns}/${name}` : name;
-	return createAction(actionName);
+  const actionName = !!ns ? `${ns}/${name}` : name;
+  return createAction(actionName);
 }
 
 function createAsyncActions(type) {
-	return {
-		done: createAction(`${type}_DONE`),
-		fail: createAction(`${type}_FAIL`),
-		start: createAction(`${type}_START`)
-	};
+  return {
+    done: createAction(`${type}_DONE`),
+    fail: createAction(`${type}_FAIL`),
+    start: createAction(`${type}_START`)
+  };
 }
 
 // SYNC
@@ -88,39 +92,39 @@ export const setMessage = actionCreator("SET_MESSAGE", NAMESPACE); // dispatch(s
 // ASYNC
 export const fetchDataActions = createAsyncActions(`${NAMESPACE}/FETCH_SIGNUP`);
 export const {
-	done: fetchDataDone,
-	fail: fetchDataFail,
-	start: fetchDataStart
+  done: fetchDataDone,
+  fail: fetchDataFail,
+  start: fetchDataStart
 } = fetchDataActions;
 
 // Thunk middleware allows us to return a function from an action call,
 // allowing us to use `dispatch(fetchData())` in our code and have all status actions fire in turn.
 export function fetchData() {
-	const fetchDataRequest = new RequestBuilder()
-		.withAuthorization()
-		.setMethodPost()
-		.setUrl(Endpoints.myEndpoint())
-		.build();
+  const fetchDataRequest = new RequestBuilder()
+    .withAuthorization()
+    .setMethodPost()
+    .setUrl(Endpoints.myEndpoint())
+    .build();
 
 
-	// This thunk function has access to `dispatch` and `getState()`.
-	return (dispatch, getState) => {
-		const apiClient = new ApiClient.Client();
-		dispatch(fetchDataStart()); // Dispatch start action
+  // This thunk function has access to `dispatch` and `getState()`.
+  return (dispatch, getState) => {
+    const apiClient = new ApiClient.Client();
+    dispatch(fetchDataStart()); // Dispatch start action
 
-		return apiClient.call(
-			request,
-			new ApiClient.ResultHandler()
-				.success((data) => {
-					dispatch(fetchDataDone(data));
-				})
-				.responseContainsErrors((errors) => {
-					dispatch(fetchDataFail(errors));
-					dispatch(showBanner(errors));
-				})
-				.default(() => {})
-		);
-	};
+    return apiClient.call(
+      request,
+      new ApiClient.ResultHandler()
+        .success((data) => {
+          dispatch(fetchDataDone(data));
+        })
+        .responseContainsErrors((errors) => {
+          dispatch(fetchDataFail(errors));
+          dispatch(showBanner(errors));
+        })
+        .default(() => {})
+    );
+  };
 }
 							</code>
 						</pre>
@@ -140,23 +144,23 @@ import { setIsVisible, setMessage } from "./actions";
 import { createReducer } from "redux-starter-kit";
 
 const initialState = {
-	isVisible: false,
-	message: "Default banner text"
+  isVisible: false,
+  message: "Default banner text"
 };
 
 
 export const BannerReducer = createReducer(
-	initialState,
-	{
-		[ setIsVisible ]: (state, { payload: isVisible }) => ({
-			...state,
-			isVisible
-		}),
-		[ setMessage ]: (state, { payload: message }) => ({
-			...state,
-			message
-		})
-	}
+  initialState,
+  {
+    [ setIsVisible ]: (state, { payload: isVisible }) => ({
+      ...state,
+      isVisible
+    }),
+    [ setMessage ]: (state, { payload: message }) => ({
+      ...state,
+      message
+    })
+  }
 );
 
 export default BannerReducer;
@@ -177,14 +181,57 @@ import { combineReducers } from "redux";
 import { connectRouter } from "connected-react-router";
 
 export const buildRootReducer = (history) => {
-	return combineReducers({
-		banner: BannerReducer,
-		router: connectRouter(history), // Connects the React-Router to the redux store for nav events
-		signup: SignupReducer
-	});
+  return combineReducers({
+    banner: BannerReducer,
+    router: connectRouter(history), // Connects the React-Router to the redux store for nav events
+    signup: SignupReducer
+  });
 };
 							</code>
 						</pre>
+					</section>
+				</section>
+
+				<section name="why-redux">
+					<section>
+						<h3>Why Redux?</h3>
+						<ul>
+							<li class="fragment">Easily Testable!</li>
+							<li class="fragment">Single source of truth!</li>
+							<li class="fragment">No more "prop drilling"!</li>
+							<li class="fragment">Easy to reason about</li>
+							<li class="fragment">Good separation of concerns</li>
+							<li class="fragment">Community!!</li>
+							<li class="fragment">Middleware and Tooling</li>
+						</ul>
+					</section>
+
+					<section class="has-dark-background present" name="easily-testable-gif" data-background-image="https://s3.amazonaws.com/media-p.slid.es/uploads/564540/images/2967994/applause.gif" data-background-color="rgb(32,19,23)" style="display: block;">
+						<h3 style="color: #fff; margin-top: 100px;">Easily Testable!</h3>
+					</section>
+
+					<section name="easily-testable">
+						<h4>Easily Testable</h4>
+						<pre><code class="js" data-trim data-line-numbers>
+// reducer-spec.js
+import { reducer } from './reducer';
+
+const state = {
+  isVisible: false
+};
+
+const action = {
+  type: 'SET_IS_VISIBLE',
+  payload: true
+};
+
+describe( 'Banner reducer', () => {
+  it( 'should handle the "SET_IS_VISIBLE" action', () => {
+    const newState = reducer( state, action );
+    expect( newState.isVisible ).toEqual( action.payload );
+  })
+})
+						</code></pre>
 					</section>
 				</section>
 
@@ -304,15 +351,18 @@ export class Banner extends React.Component {
   }
 }
 
+// Maps the app state to the props of this "connected" component
 const mapStateToProps = ( state ) => ({
-  isVisible: state.banner.isVisible,
-  message: state.banner.message
+  isVisible: state.banner.isVisible, // -> props.isVisible
+  message: state.banner.message // -> props.message
 });
 
+// Map the "dispatching" methods to props
 const mapDispatchToProps = (dispatch) => ({
-  setIsVisible: ( visible ) => dispatch( setIsVisibleAction( visible ) ),
+  setIsVisible: ( visible ) => dispatch( setIsVisibleAction( visible ) ) // -> props.setIsVisible(true|false)
 });
 
+// Connect to the store via Higher Order Component (HOC)
 export default connect(mapStateToProps, mapDispatchToProps)(Banner);
 						</code></pre>
 					</section>
@@ -328,21 +378,27 @@ import { selectSlice } from "./../../store/selectors";
 import { setIsVisible } from "../../store/Banner/actions";
 import { usePrevious } from "../../hooks/usePrevious";
 
+// In a functional component, the function _is_ the render function
 export function Banner() {
+  // This hook provides dispatch() to the component
+  const dispatch = useDispatch();
+
   // Select our state "slice". In this case, "banner".
   // This correlates to the entries in `buildRootReducer`
-  const dispatch = useDispatch();
   const mapState = useCallback((state) => state.banner, []); // This is memoized
   const { isVisible, message } = useMappedState(mapState); // Get our state variables via this hook
   
+  // Show the banner (example)
   function showBanner () {
     dispatch(setIsVisible(true));
   }
 
+  // Hide the banner (example)
   function hideBanner () {
     dispatch(setIsVisible(false));
   }
 
+  // Allow our message to be a string, array, or object
   function renderMessage() {
     if (typeof message === "string") {
       return message;
@@ -373,8 +429,136 @@ export default Banner;
 					</section>
 				</section>
 
-				<!-- <section data-markdown="md/summary.md"></section>
-				<section data-markdown="md/links.md"></section> -->
+				<section name="redux-who">
+					<section>
+						<h3>Does everyone need redux?</h3>
+					</section>
+					<section class="has-dark-background present" name="nope-gif" data-background-image="https://media.giphy.com/media/wYyTHMm50f4Dm/giphy.gif" data-background-color="rgb(32,19,23)" style="display: block;">
+						<h3 style="color: #fff; margin-bottom: 250px;">Nope.</h3>
+					</section>
+					<section>
+						<h4>Does everyone need redux?</h4>
+						<p>Nope. Not everyone needs this much state management or scalability.</p>
+					</section>
+				</section>
+
+				<section name="signs-you-do">
+					<section>
+						<h3>Signs you DO need Redux</h3>
+						<ul>
+							<li class="fragment">Multiple components need to access a shared piece of state but don’t share a parent</li>
+							<li class="fragment">In general, use Redux when you have reasonable amounts of data changing over time, you need a single source of truth, and you find that approaches like keeping everything in a top-level React component's state are no longer sufficient.</li>
+							<li class="fragment">“Prop Drilling” has become tedious and there are multiple components that have props passed through them that don’t need said props just so they can be passed to a child component.</li>
+						</ul>
+					</section>
+
+					<section name="what-is-prop-drilling">
+						<h3>What is <em>Prop Drilling</em>?</h3>
+						<p>
+							Prop drilling is passing props down through components that don't need to reference them just so a child component can access it.
+						</p>
+					</section>
+
+					<section name="stages-of-prop-drilling">
+						<h3>Stages of Prop Drilling</h3>
+						<p>It starts like this:</p>
+						<p class="fragment">
+							State is contained in the top-level component and passed to children. Not so bad...
+						</p>
+						<p class="fragment">
+							<img src="img/app-state_1.gif" alt="Not so bad...">
+						</p>
+					</section>
+					
+					<section name="step2">
+						<h3>Day 5</h3>
+						<p class="fragment">
+							The app has grown and you now need to trigger updates across components. Luckily, "lifting up state" is still easy at this point.
+						</p>
+						<p class="fragment">
+							<img src="img/app-state_1.2.gif" alt="Getting worse but manageable">
+						</p>
+					</section>
+
+					<section name="step3">
+						<h3>Day 20</h3>
+						<p class="fragment">
+							The app has grown and it's getting harder to see where updates originate or how they affect the app. Things are now getting out of hand...
+						</p>
+						<p class="fragment">
+							<img src="img/app-state_2.gif" alt="This is out of hand.">
+						</p>
+					</section>
+
+					<section name="redux-rescue-gif" class="has-dark-background present" data-background-image="https://media.giphy.com/media/l3mZgTotRjSNB3jaM/giphy.gif">
+						<h3 style="font-weight: bold; position: absolute; right: 0; top: 0;">Redux to the Rescue!!</h3>
+						<p style="position: absolute; left: 50px; top: 75x0px;">Redux ---></p>
+					</section>
+
+					<section name="redux-rescue">
+						<h3>Redux to the Rescue!!</h3>
+						<p class="fragment">
+							Redux makes it easy to dispatch the action you need from where you need it, as well as track it through the application.
+						</p>
+						<p class="fragment">
+							<img src="img/app-state_redux.gif" alt="With Redux">
+						</p>
+					</section>
+
+					<section name="advantages">
+						<h3>Advantages of Redux</h3>
+						<ul>
+							<li class="fragment">Encourages good React architecture</li>
+							<li class="fragment">Implements performance optimizations for you by maintaining immutability</li>
+							<li class="fragment">Large community surrounding Redux both with and without React</li>
+						</ul>
+					</section>
+
+					<section name="simplified-components">
+						<h3>Simplified React Components</h3>
+						<ul>
+							<li class="fragment">Often able to flatten your React component structure and even remove some container components. This is because we no longer needed to organise the hierarchy of components around passing data downwards.</li>
+							<li class="fragment">Often able to convert most class components to functional components.</li>
+						</ul>
+					</section>
+
+					<section name="separation-of-concerns">
+						<h3>Separation of Concerns</h3>
+						<ul>
+							<li class="fragment">Having a distinct section of the application that describes all of the actions and state updates makes it easier for new developers to get a quick overview of the business logic of our app in a single place.</li>
+							<li class="fragment">React components can often become less bloated with state and functions that update the state, or presenters and other files that work to synchronize app state. This meant our components can focus on managing the User Interface and be much more concise and readable.</li>
+						</ul>
+					</section>
+
+					<section name="code-quality">
+						<h3>Code Quality</h3>
+						<ul>
+							<li class="fragment">Easily debuggable state</li>
+							<li class="fragment">Redux is ridiculously easy to write unit tests for.</li>
+							<li class="fragment">Mock store to help test actions. Simply trigger an action against the mock store, then check that <pre><code class="js">store.actions === myExpectedActionsArray</code></pre></li>
+						</ul>
+					</section>
+
+					<section name="tooling">
+						<h3>Tooling Advantages</h3>
+						<ul>
+							<li class="fragment">Redux DevTools - See a list of actions and jump to them to examine your app in a given state and understand how data is mutated throughout your app</li>
+							<li class="fragment">Redux Logger/LogRocket - A production Redux logging tool that lets you replay problems as if they happened in your own browser. Instead of guessing why errors happen, or asking users for screenshots and log dumps, LogRocket lets you replay Redux actions + state, network requests, console logs, and see a video of what the user saw.</li>
+							<li class="fragment">Numerous other tools</li>
+						</ul>
+					</section>
+				</section>
+
+				<section name="summary">
+					<h3>Summary</h3>
+					<ul>
+						<li class="fragment">Not everyone needs Redux</li>
+						<li class="fragment">Redux isn’t THAT intense/tough. It's just remembering that you <em>dispatch actions</em> to the <em>reducer</em> to update the <em>store</em>.</li>
+						<li class="fragment">Redux Developer Experience is INCREDIBLE</li>
+					</ul>
+				</section>
+
+				<section data-markdown="md/links.md"></section>
 			</div>
 		</div>
 
