@@ -12,8 +12,9 @@ https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfk
 #### React
 - Classnames: https://github.com/JedWatson/classnames
   - `cn({ button: true, 'my-classname': someBoolean }) -> "button my-classname" or "button"`
-- Formik: https://github.com/jaredpalmer/formik - Form state management
+- Formik: https://github.com/jaredpalmer/formik - Form state management (outside of Redux)
+- Yup: https://github.com/jquense/yup - Schema-based validation (feat. tight Formik integration!!!)
 
 #### Other
-- TypeScript: https://www.typescriptlang.org/ - The best thing you can do for backend devs (or ANY devs) writing JS
+- TypeScript: https://www.typescriptlang.org/ - The best thing you can do for backend devs (or ANY devs) writing JS (PLUS Intellisense!)
 - My Presentation Outline: https://docs.google.com/document/d/1sTo2ZQE9XpRs_2tyothXcI3StYApr3qj7V1udIeg-1s/edit?usp=sharing
