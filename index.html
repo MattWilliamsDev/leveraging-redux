@@ -65,7 +65,7 @@
 
 						<!-- Action creator code -->
 						<pre>
-							<code class="js" data-trim data-line-numbers>
+							<code class="js" data-trim data-line-numbers data-noescape>
 // store/Banner/actions.js
 import { createAction } from "redux-starter-kit";
 import { showBanner } from "store/Banner/actions";
@@ -86,11 +86,14 @@ function createAsyncActions(type) {
 }
 
 // SYNC
-export const setIsVisible = actionCreator("SET_IS_VISIBLE", NAMESPACE); // dispatch(setIsVisible(true)) => { type: "BANNER/SET_IS_VISIBLE" payload: true }
-export const setMessage = actionCreator("SET_MESSAGE", NAMESPACE); // dispatch(setMessage("Some message")) => { type: "BANNER/SET_MESSAGE" payload: "Some message" }
+<mark>// dispatch(setIsVisible(true)) => { type: "BANNER/SET_IS_VISIBLE" payload: true }</mark>
+export const setIsVisible = actionCreator("SET_IS_VISIBLE", NAMESPACE);
+
+<mark>// dispatch(setMessage("Some message")) => { type: "BANNER/SET_MESSAGE" payload: "Some message" }</mark>
+export const setMessage = actionCreator("SET_MESSAGE", NAMESPACE);
 
 // ASYNC
-export const fetchDataActions = createAsyncActions(`${NAMESPACE}/FETCH_SIGNUP`);
+export const fetchDataActions = createAsyncActions(`${NAMESPACE}/FETCH_SIGNUP`); // Creates 3 actions for an async operation: Start, Fail, & Done
 export const {
   done: fetchDataDone,
   fail: fetchDataFail,
@@ -133,7 +136,7 @@ export function fetchData() {
 					<section name="reducers">
 						<h3>Reducers</h3>
 						<p>
-							Reducers describe how the state will be mutated when a given action `type` is dispatched.
+							Reducers describe how the state will be mutated when a given action <em>type</em> is dispatched.
 						</p>
 
 						<!-- Reducer code -->
@@ -525,8 +528,8 @@ export default Banner;
 					<section name="separation-of-concerns">
 						<h3>Separation of Concerns</h3>
 						<ul>
-							<li class="fragment">Having a distinct section of the application that describes all of the actions and state updates makes it easier for new developers to get a quick overview of the business logic of our app in a single place.</li>
-							<li class="fragment">React components can often become less bloated with state and functions that update the state, or presenters and other files that work to synchronize app state. This meant our components can focus on managing the User Interface and be much more concise and readable.</li>
+							<li class="fragment">Having a distinct section of the application that describes all of the actions and state updates makes it easier for new developers to get a quick overview of the business logic of an app in a single place.</li>
+							<li class="fragment">React components can often become less bloated with state and functions that update the state, or presenters and other files that work to synchronize app state. This means our components can focus on managing the User Interface and be much more concise and readable.</li>
 						</ul>
 					</section>
 
@@ -534,7 +537,7 @@ export default Banner;
 						<h3>Code Quality</h3>
 						<ul>
 							<li class="fragment">Easily debuggable state</li>
-							<li class="fragment">Redux is ridiculously easy to write unit tests for.</li>
+							<li class="fragment">Redux is ridiculously easy to write unit tests for (as we saw before).</li>
 							<li class="fragment">Mock store to help test actions. Simply trigger an action against the mock store, then check that <pre><code class="js">store.actions === myExpectedActionsArray</code></pre></li>
 						</ul>
 					</section>
@@ -553,7 +556,7 @@ export default Banner;
 					<h3>Summary</h3>
 					<ul>
 						<li class="fragment">Not everyone needs Redux</li>
-						<li class="fragment">Redux isn’t THAT intense/tough. It's just remembering that you <em>dispatch actions</em> to the <em>reducer</em> to update the <em>store</em>.</li>
+						<li class="fragment">Redux <em>SEEMS</em> tougher than it is. The concepts are simple - it's just remembering that you <em>dispatch actions</em> to the <em>reducer</em> to update the <em>store</em>.</li>
 						<li class="fragment">Redux Developer Experience is INCREDIBLE</li>
 					</ul>
 				</section>

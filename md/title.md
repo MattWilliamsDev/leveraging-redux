@@ -1,2 +1,2 @@
-### Leveraging the Power of React and Redux
+### Leveraging the Power of Redux
 Matt Williams
